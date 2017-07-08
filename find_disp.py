@@ -46,10 +46,10 @@ def fcn2min(params, x,data):
 
 # create a set of Parameters
 params = Parameters()
-params.add('a',   value= 9285)
+params.add('a',   value= 9785)
 params.add('b', value= -4.5)
 params.add('c', value= 0.0)
-params.add('Q', value= 1700.0)
+params.add('Q', value= 10000.0)
 params.add('sigma', value= 7.0)
 #print get_lambd(x,7000,-0.3,0)
 
