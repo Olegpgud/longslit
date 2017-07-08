@@ -1,3 +1,3 @@
 # longslit
 
-Creation of a payline for an infrared camera.
+Creation of a pipeline for an infrared camera.
