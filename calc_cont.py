@@ -33,3 +33,6 @@ try:
     pylab.show()
 except:
     pass
+hdu = fits.PrimaryHDU(data=data-p(x))
+hdulist = fits.HDUList([hdu])
+hdulist.writeto('summed_non_cont.fits', clobber=True)   
