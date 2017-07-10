@@ -13,8 +13,8 @@ def H (x,n):
 def profile_function(l_c, sigma,flux,x,h3,h4):
     return flux * np.exp(-np.power(x - l_c, 2.) / (2 * np.power(sigma, 2.)))*(1+H((x-l_c)/(sigma*(2**0.5)),3)*h3+h4*H((x-l_c)/(sigma*(2**0.5)),4))
     
-def get_lambd(x,a,b,c):
-    return a + b*x +c*x**2
+def get_lambd(x,a,b,c,d,e):
+    return a + b*x + c*x**2 + d*x**3 + e*x**4
     
 '''    
 linelist=[
@@ -25,6 +25,10 @@ linelist=[
     ]
 '''
 linelist=[
+    [14254.351,0.017],
+    [14097.5,0.13],
+    [13829.51,0.04],
+    [13914.4,0.05],
     [13722.34,1],
     [13682.29,0.20],
     [13626.38,0.3],
@@ -71,23 +75,27 @@ def fcn2min(params, x,data):
     a = params['a']
     b = params['b']
     c = params['c']
+    d = params['d']
+    e = params['e']
     Q = params['Q']
     sigma = params['sigma']
     h3 = params['h3']
     h4 = params['h4']
     model = np.zeros(1400,dtype=np.float)
     for line in linelist:
-        model = model + Q*profile_function(line[0],sigma,line[1],get_lambd(x,a,b,c),h3,h4)
+        model = model + Q*profile_function(line[0],sigma,line[1],get_lambd(x,a,b,c,d,e),h3,h4)
         #print get_lambd(x,a,b,c)
     
-    return mask*(model-data)**2
+    return mask*(model-data)
 # create a set of Parameters
 params = Parameters()
-params.add('a',   value= 11006.8, vary=True)
-params.add('b', value= 2.823, vary=True)
-params.add('c', value= 9.4183e-05, vary=True)
+params.add('a',   value= 11005.3960, vary=True)
+params.add('b', value= 2.6, vary=True)
+params.add('c', value= 0., vary=True)
+params.add('d', value= 0., vary=True)
+params.add('e', value= 0., vary=False)
 params.add('Q', value= 10000.0, vary=True)
-params.add('sigma', value= 5.0, vary=True, min=3.)
+params.add('sigma', value= 4.0, vary=True, min=3.)
 params.add('h3',value= 0,vary=False, min=-0.0005, max=0.0005)
 params.add('h4',value= 0,vary=False, min=-0.0005, max=0.0005)
 #print get_lambd(x,7000,-0.3,0)
@@ -107,7 +115,7 @@ report_fit(result)
 
 model = np.zeros(1400,dtype=np.float)
 for line in linelist:
-    model = model + result.params['Q'].value*profile_function(line[0],result.params['sigma'].value,line[1],get_lambd(x,result.params['a'].value,result.params['b'].value,result.params['c'].value),0,0)
+    model = model + result.params['Q'].value*profile_function(line[0],result.params['sigma'].value,line[1],get_lambd(x,result.params['a'].value,result.params['b'].value,result.params['c'].value,result.params['d'].value,result.params['e'].value),0,0)
 
 
 try:
