@@ -56,7 +56,7 @@ linelist=[
     ]
 
 # create data to be fitted
-datafile = fits.open('summed_non_cont.fits')
+datafile = fits.open('summed_non_cont_2.fits')
 data_in = datafile[0].data
 data = np.zeros(1400,dtype=np.float)
 mask = np.zeros(1400,dtype=np.float)
@@ -122,6 +122,7 @@ try:
     import pylab
     pylab.plot(x, data, 'k')
     pylab.plot(x, model, 'r')
+    pylab.plot(x, model-data, 'g')
     #pylab.plot(x, fcn2min(params, x,data), 'r')
     pylab.show()
 except:

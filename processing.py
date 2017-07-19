@@ -11,12 +11,13 @@ from matplotlib import rc
 from scipy.interpolate import interp1d
 from scipy import interpolate
 from scipy.interpolate import griddata
+import pylab
 font = {'family': 'Droid Sans',
         'weight': 'normal',
         'size': 20}
 
 
-
+cmap = plt.get_cmap('jet_r')
 calib = fits.open('slit7_jos_g_4s-1.fits')
 calib_dat = calib[0].data[0:4000,530:1532]
 flat = fits.open('slit7_jos_g_4s-1.1499362072.fits')
@@ -39,13 +40,21 @@ for region in regions:
     y_min = region[0]
     y_max = region[1]
     strip0 = devided[y_min:y_max,500].copy()
-    for i in range(1000):
+    for i in range(1000)[10:]:
         strip = devided[y_min:y_max,i].copy()
         corr = np.correlate(strip0, strip, mode='same')
         ind = corr.tolist().index(max(corr)) - (y_max-y_min)/2
-        x_corr.append(i)
-        y_corr.append(ind)
-    z = np.polyfit(np.array(x_corr), np.array(y_corr), 2)
+        z = np.polyfit([ind-1,ind,ind+1],[corr[ind-1+(y_max-y_min)/2],corr[ind+(y_max-y_min)/2],corr[ind+1+(y_max-y_min)/2]],2)
+        x_max = -0.5*z[1]/z[0]
+        diff = 0
+        if i>13:
+            diff = abs(x_max - y_corr[-1])+abs(x_max - y_corr[-2])
+        print x_max, ind
+        if not (diff>20 and i>10):
+            x_corr.append(i)
+            y_corr.append(x_max)
+    z = np.polyfit(np.array(x_corr), np.array(y_corr), 4)
+
     p = np.poly1d(z)
     poly_arr.append(z)
     poly_arr_x.append((y_max+y_min)/2)
@@ -58,9 +67,9 @@ for region in regions:
         #hdulist = fits.HDUList([hdu])
         #hdulist.writeto('shifted-'+str(q)+'.fits', clobber=True)
     print z
-    plot(x_corr,y_corr)
-    plot(x_corr,p(x_corr))
-#plt.show()
+    color = cmap(float(q)/20)
+    plot(x_corr,y_corr-p(x_corr)+q*0.3,c=color)
+plt.show()
 poly_arr = np.array(poly_arr)
 
 f0 = interp1d(poly_arr_x, poly_arr[:,0], kind='cubic')
